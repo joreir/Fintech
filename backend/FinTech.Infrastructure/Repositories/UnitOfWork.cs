@@ -7,6 +7,7 @@ public class UnitOfWork : IUnitOfWork
 {
     private readonly ApplicationDbContext _context;
     private ILoanRepository? _loans;
+    private ITransactionRepository? _transactions;
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -15,6 +16,9 @@ public class UnitOfWork : IUnitOfWork
 
     public ILoanRepository Loans =>
         _loans ??= new LoanRepository(_context);
+
+    public ITransactionRepository Transactions =>
+        _transactions ??= new TransactionRepository(_context);
 
     public async Task<int> CommitAsync()
     {
