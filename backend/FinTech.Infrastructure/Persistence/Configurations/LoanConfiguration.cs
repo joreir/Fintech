@@ -25,6 +25,9 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
         builder.Property(x => x.MonthlyPayment)
             .HasPrecision(18, 2);
 
+        builder.Property(x => x.MonthlyIncome)
+            .HasPrecision(18, 2);
+
         builder.Property(x => x.LoanType)
             .HasConversion<string>(); 
             
