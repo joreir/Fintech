@@ -27,7 +27,7 @@ bld/
 [Ll]ogs/
 
 appsettings.Development.json
-appsettings.Local.json
+appsettings.json
 *.env
 secrets.json
 
