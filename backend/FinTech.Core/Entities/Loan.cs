@@ -12,4 +12,6 @@ public class Loan : BaseEntity<Guid>
     public LoanType LoanType { get; set; }
     public LoanStatus Status { get; set; }
     public decimal MonthlyPayment { get; set; }
+    public ICollection<PaymentSchedule> PaymentSchedules { get; set; } = new List<PaymentSchedule>();
+    public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
 }

@@ -10,6 +10,8 @@ public class ApplicationDbContext : DbContext
     }
 
     public DbSet<Loan> Loans { get; set; }
+    public DbSet<PaymentSchedule> PaymentSchedules { get; set; }
+    public DbSet<Transaction> Transactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

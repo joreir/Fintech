@@ -1,0 +1,17 @@
+using FinTech.Core.Common;
+using FinTech.Core.Enums;
+
+namespace FinTech.Core.Entities;
+
+public class PaymentSchedule : BaseEntity<Guid>
+{
+    public Guid LoanId { get; set; }
+    public Loan Loan { get; set; } = null!;
+    public int PaymentNumber { get; set; }
+    public DateTime DueDate { get; set; }
+    public decimal TotalPayment { get; set; }
+    public decimal Principal { get; set; }
+    public decimal Interest { get; set; }
+    public decimal RemainingBalance { get; set; }
+    public PaymentStatus Status { get; set; }
+}
