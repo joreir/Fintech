@@ -41,12 +41,9 @@ export default function LoanDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [loanRes, scheduleRes] = await Promise.all([
-          loanService.getById(id),
-          loanService.getSchedule(id),
-        ])
+        const loanRes = await loanService.getById(id)
         setLoan(loanRes.data)
-        setSchedule(scheduleRes.data)
+        setSchedule(loanRes.data.paymentSchedules || [])
       } catch {
         setError('No se pudo cargar la información del préstamo.')
       } finally {
@@ -127,7 +124,7 @@ export default function LoanDetailPage() {
 
   return (
     <div className="container mx-auto py-10 px-4 space-y-8 animate-in fade-in duration-700">
-      {/* Back + Header */}
+  
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button
@@ -142,9 +139,6 @@ export default function LoanDetailPage() {
             <h1 className="text-3xl font-bold tracking-tight text-primary">
               Detalle del Préstamo
             </h1>
-            <p className="text-sm text-muted-foreground mt-0.5 font-mono">
-              ID: {loan.id}
-            </p>
           </div>
         </div>
         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${statusInfo.color}`}>
@@ -152,8 +146,6 @@ export default function LoanDetailPage() {
           {statusInfo.label}
         </div>
       </div>
-
-      {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-none shadow-xl shadow-black/5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 transition-transform hover:scale-[1.02]">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -202,7 +194,6 @@ export default function LoanDetailPage() {
         </Card>
       </div>
 
-      {/* Loan Meta Info */}
       <Card className="border-none shadow-xl shadow-black/5 overflow-hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
@@ -237,8 +228,6 @@ export default function LoanDetailPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Schedule Table */}
       <Card className="border-none shadow-xl shadow-black/5 overflow-hidden">
         <CardHeader>
           <CardTitle className="text-lg">Cronograma de Pagos</CardTitle>
