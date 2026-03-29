@@ -52,7 +52,9 @@ export default function Home() {
               <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
                 préstamos
               </span>{' '}
-              de forma inteligente
+              y <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                transacciones
+              </span>
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
               Simula, solicita y realiza seguimiento de tus créditos con un cronograma detallado

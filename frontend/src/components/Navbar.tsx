@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Landmark, Home, Calculator, FileText } from 'lucide-react'
+import { Landmark, Home, Calculator, FileText, ArrowRightLeft } from 'lucide-react'
 
 const navLinks = [
   { href: '/', label: 'Inicio', icon: Home },
   { href: '/loans/simulate', label: 'Simulador', icon: Calculator },
   { href: '/loans', label: 'Mis Préstamos', icon: FileText },
+  { href: '/transactions', label: 'Transacciones', icon: ArrowRightLeft },
 ]
 
 export function Navbar() {
