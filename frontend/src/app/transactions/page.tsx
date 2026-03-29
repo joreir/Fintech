@@ -248,11 +248,6 @@ export default function TransactionsPage() {
                       </TableCell>
                       <TableCell>
                         <span className="font-medium">{tx.description}</span>
-                        {tx.loanId && (
-                          <div className="text-xs text-muted-foreground font-mono mt-0.5">
-                            ID Préstamo: {tx.loanId.split('-')[0]}...
-                          </div>
-                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
