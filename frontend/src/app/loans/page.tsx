@@ -1,8 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { loanService } from '@/services/loanService'
 import { Loan } from '@/types/loan'
+import { cn } from '@/lib/utils'
 import {
   Table,
   TableBody,
@@ -13,9 +16,11 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BadgeCheck, Clock, XCircle, AlertCircle, TrendingUp } from 'lucide-react'
+import { buttonVariants } from '@/components/ui/button'
+import { BadgeCheck, Clock, XCircle, AlertCircle, TrendingUp, DollarSign, CreditCard, Plus } from 'lucide-react'
 
 export default function LoansPage() {
+  const router = useRouter()
   const [loans, setLoans] = useState<Loan[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -46,7 +51,7 @@ export default function LoansPage() {
       case 'Active':
         return { 
           label: 'Activo', 
-          color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400', 
+          color: 'bg-primary/10 text-primary uppercase text-[10px] tracking-wider font-bold', 
           icon: <BadgeCheck className="w-4 h-4" /> 
         }
       case 'Pending':
@@ -72,20 +77,31 @@ export default function LoansPage() {
     }
   }
 
+  const totalAmount = loans.reduce((sum, l) => sum + l.amount, 0)
+  const activeLoans = loans.filter(l => l.status === 'Active')
+  const totalMonthlyPayment = activeLoans.reduce((sum, l) => sum + l.monthlyPayment, 0)
+
   return (
     <div className="container mx-auto py-10 px-4 space-y-8 animate-in fade-in duration-700">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
             Mis Préstamos
           </h1>
           <p className="text-muted-foreground mt-1">
             Gestiona y visualiza el estado de tus solicitudes de crédito.
           </p>
         </div>
-        <Button className="shadow-lg shadow-primary/20 transition-all hover:scale-105">
+        <Link
+          href="/loans/simulate"
+          className={cn(
+            buttonVariants(),
+            'gap-2 shadow-lg shadow-primary/20 bg-primary transition-all hover:shadow-xl hover:scale-105'
+          )}
+        >
+          <Plus className="h-4 w-4" />
           Nueva Solicitud
-        </Button>
+        </Link>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -97,7 +113,48 @@ export default function LoansPage() {
           <CardContent>
             <div className="text-2xl font-bold">{loans.length}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {loans.filter(l => l.status === 'Active').length} préstamos activos actualmente.
+              {activeLoans.length} activos actualmente
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden border-none shadow-xl shadow-black/5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 transition-transform hover:scale-[1.02]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Monto Total</CardTitle>
+            <DollarSign className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(totalAmount)}</div>
+            <p className="text-xs text-muted-foreground mt-1">Capital solicitado en total</p>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden border-none shadow-xl shadow-black/5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 transition-transform hover:scale-[1.02]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cuota Mensual Total</CardTitle>
+            <CreditCard className="h-4 w-4 text-violet-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(totalMonthlyPayment)}</div>
+            <p className="text-xs text-muted-foreground mt-1">De préstamos activos</p>
+          </CardContent>
+        </Card>
+
+        <Card className="overflow-hidden border-none shadow-xl shadow-black/5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 transition-transform hover:scale-[1.02]">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Tasa de Aprobación</CardTitle>
+            <BadgeCheck className="h-4 w-4 text-amber-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loans.length > 0
+                ? `${Math.round(
+                    (loans.filter(l => l.status !== 'Rejected').length / loans.length) * 100
+                  )}%`
+                : '—'}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {loans.filter(l => l.status === 'Rejected').length} rechazados
             </p>
           </CardContent>
         </Card>
@@ -133,6 +190,12 @@ export default function LoansPage() {
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <AlertCircle className="w-8 h-8 opacity-20" />
                       <p>No se encontraron préstamos registrados.</p>
+                      <Link
+                        href="/loans/simulate"
+                        className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'mt-2')}
+                      >
+                        Simula tu primer préstamo
+                      </Link>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -140,12 +203,16 @@ export default function LoansPage() {
                 loans.map((loan) => {
                   const statusInfo = getStatusInfo(loan.status)
                   return (
-                    <TableRow key={loan.id} className="group transition-colors hover:bg-muted/30">
+                    <TableRow
+                      key={loan.id}
+                      className="group cursor-pointer transition-colors hover:bg-muted/30"
+                      onClick={() => router.push(`/loans/${loan.id}`)}
+                    >
                       <TableCell className="font-bold text-primary">
                         {formatCurrency(loan.amount)}
                       </TableCell>
                       <TableCell>{loan.term} meses</TableCell>
-                      <TableCell>{loan.loanType}</TableCell>
+                      <TableCell>{loan.loanType === 'Fixed' ? 'Cuota Fija' : 'Decreciente'}</TableCell>
                       <TableCell className="font-medium">
                         {formatCurrency(loan.monthlyPayment)}
                       </TableCell>
@@ -156,7 +223,7 @@ export default function LoansPage() {
                         </div>
                       </TableCell>
                       <TableCell className="text-muted-foreground text-sm">
-                        {new Date(loan.createdAt).toLocaleDateString()}
+                        {new Date(loan.createdAt).toLocaleDateString('es-ES')}
                       </TableCell>
                     </TableRow>
                   )
