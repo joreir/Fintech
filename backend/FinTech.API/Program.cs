@@ -44,11 +44,22 @@ builder.Services.AddCors(options =>
 
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
 string connectionString;
+
 if (!string.IsNullOrEmpty(databaseUrl))
 {
-    var uri = new Uri(databaseUrl);
-    var userInfo = uri.UserInfo.Split(':');
-    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+    // If it looks like a URI, parse it
+    if (databaseUrl.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) || 
+        databaseUrl.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+    {
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':');
+        connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+    }
+    else
+    {
+        // Render already gives a valid Npgsql ADO.NET connection string via `property: connectionString`
+        connectionString = databaseUrl;
+    }
 }
 else
 {
