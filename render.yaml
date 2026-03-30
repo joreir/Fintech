@@ -1,0 +1,41 @@
+databases:
+  - name: fintech-db
+    plan: free
+    databaseName: fintechdb
+    user: fintech_user
+
+services:
+  # Backend API (.NET 8 Docker)
+  - type: web
+    name: fintech-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fintech-db
+          property: connectionURI
+      - key: FRONTEND_URL
+        value: https://fintech-frontend.onrender.com
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+
+  # Frontend (Next.js Node)
+  - type: web
+    name: fintech-frontend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    rootDir: ./frontend
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://fintech-api.onrender.com
+      - key: NEXT_PUBLIC_USER_ID
+        value: user_reinaldo_08
+      - key: PORT
+        value: 10000
+      - key: HOSTNAME
+        value: 0.0.0.0

@@ -11,15 +11,17 @@ public class LoanServiceTests
 {
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
     private readonly Mock<ILoanRepository> _mockLoanRepo;
+    private readonly Mock<ITransactionService> _mockTransactionService;
     private readonly LoanService _service;
 
     public LoanServiceTests()
     {
         _mockLoanRepo = new Mock<ILoanRepository>();
         _mockUnitOfWork = new Mock<IUnitOfWork>();
+        _mockTransactionService = new Mock<ITransactionService>();
         _mockUnitOfWork.Setup(u => u.Loans).Returns(_mockLoanRepo.Object);
         _mockUnitOfWork.Setup(u => u.CommitAsync()).ReturnsAsync(1);
-        _service = new LoanService(_mockUnitOfWork.Object);
+        _service = new LoanService(_mockUnitOfWork.Object, _mockTransactionService.Object);
     }
 
     [Fact]

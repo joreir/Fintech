@@ -70,7 +70,7 @@ public static class FinancialCalculator
         int month = ((targetMonth - 1) % 12) + 1;
         int day = Math.Min(startDate.Day, DateTime.DaysInMonth(year, month));
 
-        return new DateTime(year, month, day);
+        return new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Utc);
     }
 }
 

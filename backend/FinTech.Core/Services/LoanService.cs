@@ -9,6 +9,7 @@ namespace FinTech.Core.Services;
 public class LoanService : ILoanService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITransactionService _transactionService;
 
     private const decimal MinAmount = 500m;
     private const decimal MaxAmount = 50_000m;
@@ -22,9 +23,10 @@ public class LoanService : ILoanService
     private const decimal AutoApproveMaxAmount = 10_000m;
     private const int AutoApproveMaxActiveLoans = 2;
 
-    public LoanService(IUnitOfWork unitOfWork)
+    public LoanService(IUnitOfWork unitOfWork, ITransactionService transactionService)
     {
         _unitOfWork = unitOfWork;
+        _transactionService = transactionService;
     }
 
     public Task<ServiceResult<LoanSimulationResponseDto>> SimulateLoanAsync(LoanSimulationRequestDto request)
@@ -139,20 +141,20 @@ public class LoanService : ILoanService
             return ServiceResult<LoanResponseDto>.Fail(
                 $"Solo se pueden aprobar préstamos en estado Pending. Estado actual: {loan.Status}.");
 
-        loan.Status = LoanStatus.Active;
-        loan.UpdatedAt = DateTime.UtcNow;
-
-        loan.Transactions.Add(new Transaction
+        var transactionResult = await _transactionService.CreateTransactionAsync(new CreateTransactionRequestDto
         {
-            Id = Guid.NewGuid(),
             IdempotencyKey = $"DISBURSEMENT-{loan.Id}",
             Type = TransactionType.Disbursement,
             Amount = loan.Amount,
-            Status = TransactionStatus.Completed,
             LoanId = loan.Id,
-            Description = $"Desembolso del préstamo {loan.Id}",
-            CreatedAt = DateTime.UtcNow
+            Description = $"Desembolso del préstamo",
         });
+
+        if (!transactionResult.Success)
+            return ServiceResult<LoanResponseDto>.Fail(transactionResult.ErrorMessage!);
+
+        loan.Status = LoanStatus.Active;
+        loan.UpdatedAt = DateTime.UtcNow;
 
         _unitOfWork.Loans.Update(loan);
         await _unitOfWork.CommitAsync();
