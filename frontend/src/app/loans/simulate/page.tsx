@@ -23,17 +23,17 @@ import {
 // ── Schema ────────────────────────────────────────────────────────────────────
 const simulateSchema = z.object({
   amount: z
-    .number({ invalid_type_error: 'Ingresa un monto válido.' })
+    .number({ message: 'Ingresa un monto válido.' })
     .min(500, 'El monto mínimo es $500.')
     .max(50_000, 'El monto máximo es $50,000.'),
   termMonths: z
-    .number({ invalid_type_error: 'Ingresa un plazo válido.' })
+    .number({ message: 'Ingresa un plazo válido.' })
     .int('El plazo debe ser un número entero.')
     .min(6, 'El plazo mínimo es 6 meses.')
     .max(60, 'El plazo máximo es 60 meses.'),
   loanType: z.enum(['Fixed', 'Decreasing'] as const),
   monthlyIncome: z
-    .number({ invalid_type_error: 'Ingresa un ingreso válido.' })
+    .number({ message: 'Ingresa un ingreso válido.' })
     .positive('Los ingresos deben ser mayores a 0.')
     .optional()
     .or(z.literal(undefined)),
